@@ -20,7 +20,7 @@ backend/
 
 ## Установка зависимостей
 ```
-pip install -r requiremenets.txt  
+pip install -r requirements.txt  
 ```
 
 ## Генерация секретов для .env  
