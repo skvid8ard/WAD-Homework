@@ -20,7 +20,8 @@ source .venv/bin/activate
 ## Windows  
 .\venv\Scripts\Activate.ps1
 
-# .env
+# .env  
+```
 PROJECT_NAME="Local LLM Chat"
 DATABASE_URL="postgresql+asyncpg://postgres:<pass>@localhost:5432/chatdb"
 REDIS_URL="redis://:<pass>@localhost:6379/0"
@@ -40,3 +41,4 @@ POSTGRES_DB="chatdb"
 # GitHub OAuth
 GITHUB_CLIENT_ID="your_github_client_id"
 GITHUB_CLIENT_SECRET="your_github_client_secret"
+```
