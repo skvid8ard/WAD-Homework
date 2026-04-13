@@ -18,6 +18,11 @@ backend/
 ### Windows  
 `.\venv\Scripts\Activate.ps1`
 
+## Установка зависимостей
+```
+pip install -r requiremenets.txt  
+```
+
 ## Генерация секретов для .env  
 ```
 openssl rand --hex 32
