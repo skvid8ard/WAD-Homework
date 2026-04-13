@@ -1,4 +1,4 @@
-# WAD-Homework  
+# Архитектура  
 backend/  
 ├── app/  
 │   ├── core/           # Настройки, инициализация БД, Redis, безопасность  
@@ -10,17 +10,20 @@ backend/
 ├── .env                # Переменные окружения  
 └── requirements.txt  
 
-# Генерация секретов для .env  
-`openssl rand --hex 32`  
+# Деплой
+## Venv  
+`python3 -m venv .venv`  
+### Linux  
+`source .venv/bin/activate`  
+### Windows  
+`.\venv\Scripts\Activate.ps1`
 
-# Venv  
-python3 -m venv .venv  
-## Linux  
-source .venv/bin/activate  
-## Windows  
-.\venv\Scripts\Activate.ps1
+## Генерация секретов для .env  
+```
+openssl rand --hex 32
+```  
 
-# .env  
+## .env  
 ```
 PROJECT_NAME="Local LLM Chat"
 DATABASE_URL="postgresql+asyncpg://postgres:<pass>@localhost:5432/chatdb"
@@ -41,4 +44,8 @@ POSTGRES_DB="chatdb"
 # GitHub OAuth
 GITHUB_CLIENT_ID="your_github_client_id"
 GITHUB_CLIENT_SECRET="your_github_client_secret"
+```
+
+```
+docker compose up -d  
 ```
