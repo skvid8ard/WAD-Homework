@@ -1,5 +1,4 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 
 # Инициализация асинхронного движка
@@ -11,9 +10,6 @@ AsyncSessionLocal = async_sessionmaker(
     class_=AsyncSession, 
     expire_on_commit=False
 )
-
-# Базовый класс для всех моделей
-Base = declarative_base()
 
 # Dependency для FastAPI (используется в контроллерах)
 async def get_db():

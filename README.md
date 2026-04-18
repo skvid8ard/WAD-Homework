@@ -7,6 +7,8 @@ backend/
 │   ├── services/       # Бизнес-логика (Service)  
 │   ├── controllers/    # API Роутеры (Controller)  
 │   └── main.py         # Точка входа приложения  
+├── migrations/         # Файлы миграций базы данных (Alembic)  
+├── docs/               # Документация и логи спринтов  
 ├── .env                # Переменные окружения  
 └── requirements.txt  
 
@@ -23,34 +25,21 @@ backend/
 pip install -r requirements.txt  
 ```
 
-## Генерация секретов для .env  
+## Настройка окружения
+### Генерация секретов для .env
 ```
 openssl rand --hex 32
 ```  
 
-## .env  
-```
-PROJECT_NAME="Local LLM Chat"
-DATABASE_URL="postgresql+asyncpg://postgres:<pass>@localhost:5432/chatdb"
-REDIS_URL="redis://:<pass>@localhost:6379/0"
+### Создание .env  
+Скопировать `.env` из `.env.example` и заменить все инсерты сгенерированными секретами.  
 
-# JWT Settings
-SECRET_KEY="<pass>"
-ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=30
-
-# DBs
-REDIS_PASSWORD="<pass>"
-POSTGRES_USER="postgres"
-POSTGRES_PASSWORD="<pass>"
-POSTGRES_DB="chatdb"
-
-# GitHub OAuth
-GITHUB_CLIENT_ID="your_github_client_id"
-GITHUB_CLIENT_SECRET="your_github_client_secret"
-```
-
+## Запуск проекта и миграции
 ```
 docker compose up -d  
+```
+
+Накат актуальной структуры базы данных:  
+```
+alembic upgrade head
 ```
