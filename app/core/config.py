@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_ID: str
     GITHUB_CLIENT_SECRET: str
 
+    ENVIRONMENT: str = "development" # Значение по умолчанию, может быть переопределено в .env файле
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()
