@@ -7,10 +7,11 @@ backend/
 │   ├── services/       # Бизнес-логика (Service)  
 │   ├── controllers/    # API Роутеры (Controller)  
 │   └── main.py         # Точка входа приложения  
-├── migrations/         # Файлы миграций базы данных (Alembic)  
-├── docs/               # Документация и логи спринтов  
+├── migrations/         # Файлы миграций базы данных (Alembic)
+├── tests/              # Автоматизированные тесты (pytest)
+├── docs/               # Документация и логи спринтов
 ├── .env                # Переменные окружения  
-└── requirements.txt  
+└── requirements.txt 
 
 # Деплой
 ## Venv  
