@@ -5,7 +5,7 @@ from app.controllers import auth
 app = FastAPI(
     title="LLM chat",
     description="API для чата с локальной нейросетью",
-    version = "v0.3.0"
+    version = "v0.3.1"
     )
 
 # Настройка CORS для разрешения запросов с определенных источников
