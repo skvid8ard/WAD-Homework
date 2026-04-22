@@ -1,50 +1,76 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from fastapi import HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 import uuid
 import jwt
+import logging
 
 from app.models.user import User
 from app.schemas.user import UserCreate
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token
 from app.core.redis import redis_client
 from app.core.config import settings
+from app.services.email_service import generate_verification_code, send_verification_email
+
+logger = logging.getLogger(__name__)
 
 async def register_user(db: AsyncSession, user_data: UserCreate) -> User:
     """Бизнес-логика регистрации пользователя"""
     # Проверяем, существует ли уже пользователь с таким username
-    query = select(User).where(User.username == user_data.username)
+    query = select(User).where(
+        or_(User.username == user_data.username, User.email == user_data.email)
+        )
     result = await db.execute(query)
+
     if result.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
-            detail="Username already taken / Имя пользователя уже занято"
+            detail="Username or email already taken / Имя пользователя или email уже занято"
         )
 
     # Хэшируем пароль
     new_user = User(
         username=user_data.username,
-        hashed_password=get_password_hash(user_data.password)
+        email=user_data.email,
+        hashed_password=get_password_hash(user_data.password),
+        is_verified=False
     )
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user) # Подтягивание ID, сгенерированного базой данных
+
+    verification_code = generate_verification_code()
+
+    redis_key = f"verify:{new_user.email}"
+    await redis_client.setex(name=redis_key, time=600, value=verification_code)
+
+    await send_verification_email(new_user.email, verification_code)
+
     return new_user
 
-async def login_user(db: AsyncSession, user_data: UserCreate) -> dict:
+async def login_user(db: AsyncSession, form_data: OAuth2PasswordRequestForm) -> dict:
     """Бизнес-логика входа и генерации токенов"""
 
     # Поиск пользователя по username
-    query = select(User).where(User.username == user_data.username)
+    query = select(User).where(
+        or_(User.username == form_data.username, User.email == form_data.username)
+    )
     result = await db.execute(query)
     user = result.scalar_one_or_none()
 
     # Проверка существования пользователя и верификация пароля
     # Защита от перебора паролей (enum defence)
-    if not user or not verify_password(user_data.password, user.hashed_password):
+    if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="Invalid username or password / Неверное имя пользователя или пароль"
+        )
+
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email not verified, please, verify your email / Email не подтвержден, пожалуйста, подтвердите ваш Email"
         )
 
     # Генерация токенов
@@ -144,3 +170,73 @@ async def logout_user(user_id: int):
             await redis_client.delete(*keys)
         if cursor == 0:
             break
+
+async def verify_user_email(db: AsyncSession, email: str, verification_code: str):
+    logger.warning(f"DEBUG: Попытка верификации. Email: {email}, Код: {verification_code}")
+
+    """Бизнес-логика верификации email пользователя"""
+    redis_key = f"verify:{email}"
+    stored_code = await redis_client.get(redis_key)
+
+    logger.warning(f"DEBUG: Код из redis {email}: {stored_code}")
+
+    if not stored_code or stored_code != verification_code:
+        logger.error(f"DEBUG: Неверный код верификации для {email}. Ожидалось: {stored_code}, Получено: {verification_code}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification code / Неверный или истекший код подтверждения Email"
+        )
+
+    logger.warning(f"DEBUG: Сравниваем. Из Redis: '{stored_code}' == От юзера: '{verification_code}' ?")
+
+    query = select(User).where(User.email == email)
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found / Пользователь не найден"
+        )
+
+    if user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already verified / Email уже подтвержден"
+        )
+
+    user.is_verified = True
+    await db.commit()
+
+    await redis_client.delete(redis_key)
+
+    return {"message": "Email successfully verified / Email успешно подтвержден"}
+
+async def resend_verification_code(db: AsyncSession, email:str) -> dict:
+    """
+    Бизнес-логика повторной отправки кода верификации на email пользователя
+    """
+    query = select(User).where(User.email == email)
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_200_OK, # Возвращаем 200, чтобы не раскрывать информацию о существовании email в системе
+            detail="If the email exists, a verification code has been sent / Если email существует, код подтверждения был отправлен"
+        )
+
+    if user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already verified / Email уже подтвержден"
+        )
+
+    new_code = generate_verification_code()
+
+    redis_key = f"verify:{email}"
+    await redis_client.setex(name=redis_key, time=600, value=new_code)
+
+    await send_verification_email(email, new_code)
+
+    return {"message": "If the email exists, a verification code has been sent / Если email существует, код подтверждения был отправлен"}

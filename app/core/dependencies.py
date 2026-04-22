@@ -21,7 +21,7 @@ async def get_current_user(
     Зависимость для защиты эндпоинтов. 
     Извлекает токен, проверяет подпись, срок годности и ищет пользователя в БД.
     """
-    credentials_exception = HHTPException(
+    credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials / Не удалось проверить учетные данные",
         headers={"WWW-Authenticate": "Bearer"},
@@ -34,7 +34,7 @@ async def get_current_user(
         token_type: str = payload.get("type") # "type" - кастомное поле для указания типа токена (access или refresh)
 
         # Проверка того, что токен является access токеном, а не refresh токеном
-        if user_id is None or token_type != "access":
+        if user_id_str is None or token_type != "access":
             raise credentials_exception
 
     except jwt.PyJWTError: # Если токен протух или битый

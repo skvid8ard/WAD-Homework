@@ -1,9 +1,10 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, EmailStr
 import uuid
 import re
 
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
+    email: EmailStr = Field(..., min_length=3, max_length=255)
     password: str = Field(...)
 
     @field_validator('password')
@@ -32,5 +33,14 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id: uuid.UUID
     username: str
+    email: EmailStr
+    is_verified: bool
 
     model_config = ConfigDict(from_attributes=True)
+
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    verification_code: str = Field(..., min_length=6, max_length=6)
+
+class ResendCodeRequest(BaseModel):
+    email: EmailStr
