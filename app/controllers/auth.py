@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.schemas.user import UserCreate, UserResponse, VerifyEmailRequest, ResendCodeRequest
+from app.schemas.oauth import OAuthLoginRequest
 from app.services import auth_service
 from app.core.dependencies import get_current_user
 from app.models.user import User
@@ -38,6 +39,32 @@ async def login(
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         **get_auth_cookie_params() # Получение параметров для установки куки из отдельной функции
     )
+    return {
+        "access_token": tokens["access_token"],
+        "token_type": "bearer"
+    }
+
+@router.post("/oauth/{provider}/login")
+async def login_via_oauth(
+    provider: str,
+    request: OAuthLoginRequest,
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Универсальный эндпоинт для входа через OAuth2-провайдеров (Googe, GitHub и т.д.)
+    """
+    tokens = await auth_service.oauth_login(db, provider, request.code)
+    cookie_params = get_auth_cookie_params()
+
+    # Установка cookie с refresh_token
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens["refresh_token"],
+        **cookie_params
+    )
+
+    # Отдача access_token в JSON
     return {
         "access_token": tokens["access_token"],
         "token_type": "bearer"

@@ -4,6 +4,25 @@
 Формат основан на[Keep a Changelog](https://keepachangelog.com/ru/1.0.0/), 
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-04-25
+
+### Добавлено
+- Интеграция OAuth2 (Authorization Code Flow) для провайдеров Google и GitHub.
+- Универсальный динамический эндпоинт `POST /auth/oauth/{provider}/login`.
+- Новая таблица `oauth_accounts` (1-ко-многим с `users`) для хранения привязанных соцсетей.
+- Механизм **Implicit Linking**: автоматическое связывание социального аккаунта с уже существующим пользователем по совпадению email.
+- Автоматическая бесшовная регистрация новых пользователей через OAuth2 (is_verified = True, безопасная автогенерация уникального username на базе email и UUID).
+- Изолированные автотесты для OAuth2 с использованием `unittest.mock.patch` для подмены внешних HTTP-вызовов к провайдерам.
+
+### Изменено
+- Обновлен `auth_service.py` (Оркестратор): переиспользование существующей логики генерации JWT и Redis-сессий для входа через соцсети.
+- `httpx.AsyncClient` в провайдерах теперь использует явный `timeout=15.0` для защиты от зависаний при проблемах с сетью.
+- Модели SQLAlchemy получили `default=uuid.uuid4` (на уровне Python) в дополнение к `server_default` (на уровне БД) для обеспечения кроссплатформенности тестов (PostgreSQL + SQLite).
+
+### Исправлено
+- Добавлено декодирование URL (`urllib.parse.unquote`), чтобы предотвратить ошибку 400 Bad Request от Google при двойном кодировании символов (`%2F`) фронтендом.
+- Устранена ошибка `OperationalError: unknown function: gen_random_uuid()` при тестировании связей в in-memory SQLite базе.
+
 ## [0.4.1] - 2026-04-24
 ### Изменено
 - **Рефакторинг (Clean Architecture):** `auth_service.py` разделен на независимые слои (SRP): `user_service.py` (SQLAlchemy) и `session_service.py` (Redis). `auth_service.py` теперь выступает в роли Фасада (Оркестратора).

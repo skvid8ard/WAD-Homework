@@ -3,6 +3,7 @@ import jwt
 import logging
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from app.services.oauth_providers import GoogleOAuthProvider, GitHubOAuthProvider
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
@@ -86,6 +87,42 @@ async def login_user(db: AsyncSession, form_data: OAuth2PasswordRequestForm) -> 
         "access_token": access_token,
         "refresh_token": refresh_token,
         "token_jti": token_jti # Возвращение JTI для последующего использования при обновлении токена
+    }
+
+async def oauth_login(db: AsyncSession, provider: str, code: str) -> dict:
+    # Получение данных от провайдера
+    if provider == "google":
+        oauth_data = await GoogleOAuthProvider.get_user_data(code)
+    elif provider == "github":
+        oauth_data = await GitHubOAuthProvider.get_user_data(code)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Unsupported OAuth provider / Непподерживаемый OAuth-провайдер"
+        )
+    
+    oauth_acc = await user_service.get_oauth_account(db, oauth_data.provider, oauth_data.account_id)
+
+    if oauth_acc:
+        user = await db.get(User, oauth_acc.user_id)
+    else:
+        user = await user_service.get_user_by_email(db, oauth_data.email)
+
+        if not user:
+            user = await user_service.create_user_from_oauth(db, oauth_data.email)
+
+        await user_service.create_oauth_account(db, user.id, oauth_data)
+
+    access_token = create_access_token(subject=str(user.id))
+    token_jti = str(uuid.uuid4())
+    refresh_token = create_refresh_token(subject=str(user.id), jti=token_jti)
+
+    await session_service.save_refresh_session(str(user.id), token_jti, refresh_token)
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_jti": token_jti
     }
 
 async def refresh_session(refresh_token: str) -> dict:
