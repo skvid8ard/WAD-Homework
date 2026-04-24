@@ -46,3 +46,14 @@ async def client():
         base_url="http://test"
     ) as ac:
         yield ac
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """
+    Создает единый Event Loop для всей тестовой сессии.
+    Это решает ошибку 'Event loop is closed', возникающую из-за
+    глобального пула подключений Redis.
+    """
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()

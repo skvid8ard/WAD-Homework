@@ -4,6 +4,12 @@
 Формат основан на[Keep a Changelog](https://keepachangelog.com/ru/1.0.0/), 
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-04-24
+### Изменено
+- **Рефакторинг (Clean Architecture):** `auth_service.py` разделен на независимые слои (SRP): `user_service.py` (SQLAlchemy) и `session_service.py` (Redis). `auth_service.py` теперь выступает в роли Фасада (Оркестратора).
+### Исправлено
+- Исправлена проблема `RuntimeError: Event loop is closed` в автотестах путем добавления глобального `pytest.ini` с `asyncio_default_fixture_loop_scope = session`.
+
 ## [0.4.0] - 2026-04-22
 ### Добавлено
 - Новые колонки в таблице `users`: `email` (уникальная) и `is_verified` (boolean, default=False).

@@ -107,7 +107,7 @@ async def logout(
     """Эндпоинт для выхода пользователя (logout). Инвалидирует все сессии пользователя в Redis и удаляет refresh токен из куки, что фактически завершает сеанс пользователя."""
 
     # Вызов метода logout_user из auth_service для инвалидации всех сессий пользователя в Redis
-    await auth_service.logout_user(current_user.id)
+    await auth_service.logout_user(str(current_user.id))
 
     # Удаление refresh токена из куки, что фактически завершает сеанс пользователя (logout)
     response.delete_cookie(
