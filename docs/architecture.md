@@ -37,3 +37,17 @@ POST /chats (JSON: ChatCreate) -> 201 Created (Создание комнаты)
 GET /chats -> 200 OK (Список комнат юзера)
 GET /chats/{chat_id}/messages -> 200 OK (История диалога)
 POST /chats/{chat_id}/messages (JSON: ChatMessageRequest) -> 200 OK (Стриминг ответа от LLM + автосохранение истории в БД)
+
+## Frontend Architecture (React + Vite)
+Архитектура фронтенда построена на базе модульной структуры, вдохновленной Feature-Sliced Design (FSD).
+
+6. frontend/src/ (Клиентское приложение)
+   - `main.tsx`: Точка входа в React-приложение, монтирование в DOM.
+   - `App.tsx`: Главный компонент маршрутизации (React Router).
+   - `index.css`: Глобальные стили и инициализация Tailwind CSS v4.
+   
+   - `widgets/`: Крупные, самостоятельные блоки интерфейса.
+     - `Layout.tsx`: Обертка приложения (Sidebar + Main Content Outlet), управление переключением темной/светлой темы.
+     
+   - `pages/`: Компоненты-страницы, которые привязываются к маршрутам.
+   - `shared/`: Общие переиспользуемые элементы (API-клиенты, UI-кит, глобальные сторы).

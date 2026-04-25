@@ -18,10 +18,10 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_SECRET: str = ""
     GITHUB_REDIRECT_URI: str = "http://localhost:8000/auth/github/callback"
 
-    LLM_MODEL_PATH: str = "ai-models/qwen.gguf"
+    LLM_MODEL_PATH: str = "../ai-models/qwen.gguf"
 
     ENVIRONMENT: str = "development" # Значение по умолчанию, может быть переопределено в .env файле
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=["../../.env", "../.env", ".env"], extra="ignore")
 
 settings = Settings()
