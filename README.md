@@ -60,8 +60,21 @@ curl -X 'POST' \
 ```
 
 ### Проверка в бд (пример)
+#### Просмотр пользователей
 ``` bash
 docker exec -it wad-homework-postgres-1 psql -U postgres -d chatdb -c"SELECT * FROM users;"
+```
+#### Просмотр OAuth аккаунтов
+``` bash
+docker exec -it wad-homework-postgres-1 psql -U postgres -d chatdb -c "SELECT user_id, oauth_name, account_email FROM oauth_accounts;"
+```
+#### Просмотр чатов
+``` bash
+docker exec -it wad-homework-postgres-1 psql -U postgres -d chatdb -c "SELECT id, title, created_at FROM chats;"
+```
+#### Просмотр истории конкретного чата
+``` bash
+docker exec -it wad-homework-postgres-1 psql -U postgres -d chatdb -c "SELECT role, content FROM messages WHERE chat_id = '<CHAT_ID>' ORDER BY created_at ASC;"
 ```
 
 ### Проверка refresh-токенов в redis

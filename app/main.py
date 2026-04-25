@@ -1,11 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware # Импортируем стандартный Middleware
-from app.controllers import auth
+from app.controllers import auth, chat 
+from app.services.llm_service import LocalLLMService
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- Логика при ЗАПУСКЕ сервера ---
+    print("🚀 Старт сервера...")
+    LocalLLMService.initialize()
+    yield
+
+    # --- Логика при ОСТАНОВКЕ сервера ---
+    print("🛑 Остановка сервера, очистка ресурсов...")
+    # (Опционально) Можно принудительно очистить память
+    LocalLLMService._model = None
 
 app = FastAPI(
     title="LLM chat",
     description="API для чата с локальной нейросетью",
-    version = "v0.3.1"
+    version = "v0.5.0",
+    lifespan=lifespan
     )
 
 # Настройка CORS для разрешения запросов с определенных источников
@@ -23,6 +38,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(chat.router)
 
 @app.get("/health")
 async def health_check():

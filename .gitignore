@@ -11,6 +11,8 @@ __pycahce__/
 *.pyd
 .pytest_cache/
 
+ai-models/
+
 .idea/
 .vscode/
 
