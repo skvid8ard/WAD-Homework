@@ -19,14 +19,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="LLM chat",
     description="API для чата с локальной нейросетью",
-    version = "v0.5.0",
+    version = "v0.7.1",
     lifespan=lifespan
     )
 
 # Настройка CORS для разрешения запросов с определенных источников
 origins = [
-    "http://localhost:<port>", # Разрешаем запросы с фронтенда, который работает на этом адресе
-    "http://127.0.0.1:<port>"
+    "http://localhost:5173", # Разрешаем запросы с фронтенда, который работает на этом адресе
+    "http://127.0.0.1:5173"
 ]
 
 app.add_middleware(
