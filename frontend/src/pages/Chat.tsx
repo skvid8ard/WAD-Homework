@@ -3,7 +3,7 @@ import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MarkdownMessage } from '../shared/components/MarkdownMessage';
 import { useAuthStore } from '../shared/store/authStore';
-import { api } from '../shared/api';
+import { api, fetchWithAuth } from '../shared/api';
 import { useChatStore } from '../shared/store/chatStore';
 
 // Описываем тип сообщения
@@ -104,12 +104,10 @@ export const Chat: React.FC = () => {
 
       // ШАГ Б: Отправляем запрос на генерацию
       // Используем нативный fetch для поддержки потокового чтения (Streams API)
-      const response = await fetch(`http://localhost:8000/chats/${currentChatId}/messages`, {
+      // Используем нашу "умную" обертку. 
+      // Обрати внимание: мы больше не передаем headers руками, она всё сделает сама!
+      const response = await fetchWithAuth(`http://localhost:8000/chats/${currentChatId}/messages`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // Ручками подкладываем токен
-        },
         body: JSON.stringify({ message: userMessage })
       });
 
