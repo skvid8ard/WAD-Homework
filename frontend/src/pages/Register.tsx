@@ -109,7 +109,7 @@ export const Register = () => {
     <div className="flex min-h-screen items-center justify-center p-4 relative">
 
       {/* Кнопка смены темы в правом верхнем углу */}
-      <div className="absolute top-4 right-4">
+      <div className="fixed bottom-6 left-6 z-50 transition-all duration-300">
         <ThemeToggle />
       </div>
 

@@ -5,23 +5,27 @@ import { useThemeStore } from '../store/themeStore';
 export const ThemeToggle = () => {
   const { isDark, toggleTheme } = useThemeStore();
 
-  // Эффект при монтировании: если юзер перезагрузил страницу,
-  // мы читаем стейт из localStorage (через Zustand) и применяем класс к HTML
+  // Принудительная синхронизация при каждом изменении isDark
   useEffect(() => {
+    const root = window.document.documentElement;
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
     }
-  },[isDark]);
+  }, [isDark]);
 
   return (
     <button 
       onClick={toggleTheme} 
-      className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-colors text-zinc-500 dark:text-zinc-400 transition-all duration-200 active:scale-95"
-      title="Переключить тему"
+      className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-all duration-200 active:scale-95 text-zinc-500 dark:text-zinc-400"
+      aria-label="Toggle theme"
     >
-      {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      {isDark ? (
+        <Sun size={20} className="text-yellow-500 transition-all" />
+      ) : (
+        <Moon size={20} className="text-zinc-600 transition-all" />
+      )}
     </button>
   );
 };
