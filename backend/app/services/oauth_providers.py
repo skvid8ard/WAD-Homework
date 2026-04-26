@@ -5,10 +5,24 @@ from app.core.config import settings
 from app.schemas.oauth import OAuthUserData
 
 class GoogleOAuthProvider:
+    AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
     # URL для обмена кода на токен
     TOKEN_URL = "https://oauth2.googleapis.com/token"
     # URL для получения данных пользователя
     USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+
+    @classmethod
+    def get_authorization_url(cls) -> str:
+        """Генерирует ссылку для редиректа пользователя на страницу входа Google"""
+        params = {
+            "client_id": settings.GOOGLE_CLIENT_ID,
+            "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+            "response_type": "code",
+            "scope": "openid email profile",
+            "access_type": "offline",
+            "prompt": "select_account"
+        }
+        return f"{cls.AUTHORIZE_URL}?{urllib.parse.urlencode(params)}"
 
     @classmethod
     async def get_user_data(cls, code: str) -> OAuthUserData:
@@ -61,9 +75,21 @@ class GoogleOAuthProvider:
             )
 
 class GitHubOAuthProvider:
+    AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
     TOKEN_URL = "https://github.com/login/oauth/access_token"
     USER_INFO_URL = "https://api.github.com/user"
     EMAILS_URL = "https://api.github.com/user/emails"
+
+    @classmethod
+    def get_authorization_url(cls) -> str:
+        """Генерирует ссылку для редиректа пользователя на страницу входа GitHub"""
+        params = {
+            "client_id": settings.GITHUB_CLIENT_ID,
+            "redirect_uri": settings.GITHUB_REDIRECT_URI,
+            "scope": "user:email",
+            "response_type": "code",
+        }
+        return f"{cls.AUTHORIZE_URL}?{urllib.parse.urlencode(params)}"
 
     @classmethod
     async def get_user_data(cls, code: str) -> OAuthUserData:

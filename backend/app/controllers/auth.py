@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Response, HTTPException, status, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -10,6 +11,7 @@ from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.core.security import get_auth_cookie_params
 from app.core.config import settings
+from app.services.oauth_providers import GoogleOAuthProvider, GitHubOAuthProvider
 
 # Объявление роутера с настройками "по умолчанию" для всех его методов
 router = APIRouter(
@@ -43,6 +45,21 @@ async def login(
         "access_token": tokens["access_token"],
         "token_type": "bearer"
     }
+
+@router.get("/oauth/{provider}/authorize")
+async def oauth_authorize(provider: str):
+    """
+    Эндпоинт, на который переходит фронтенд.
+    Бэкенд просто перенаправляет браузер пользователя на сайт провайдера.
+    """
+    if provider == "google":
+        url = GoogleOAuthProvider.get_authorization_url()
+    elif provider == "github":
+        url = GitHubOAuthProvider.get_authorization_url()
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported OAuth provider")
+    
+    return RedirectResponse(url=url)
 
 @router.post("/oauth/{provider}/login")
 async def login_via_oauth(

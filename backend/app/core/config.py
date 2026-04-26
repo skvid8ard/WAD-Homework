@@ -12,11 +12,11 @@ class Settings(BaseSettings):
     
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
-    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/auth/google/callback"
+    GOOGLE_REDIRECT_URI: str = "http://localhost:5173/oauth/callback/google"
 
     GITHUB_CLIENT_ID: str = ""
     GITHUB_CLIENT_SECRET: str = ""
-    GITHUB_REDIRECT_URI: str = "http://localhost:8000/auth/github/callback"
+    GITHUB_REDIRECT_URI: str = "http://localhost:5173/oauth/callback/github"
 
     LLM_MODEL_PATH: str = "../ai-models/qwen.gguf"
 

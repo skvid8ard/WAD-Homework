@@ -6,6 +6,7 @@ import { ProtectedRoute } from './shared/components/ProtectedRoute';
 import { PublicRoute } from './shared/components/PublicRoute';
 import { Chat } from './pages/Chat';
 import { Toaster } from 'react-hot-toast';
+import { OAuthCallback } from './pages/OAuthCallback';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/oauth/callback/:provider" element={<OAuthCallback />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>
