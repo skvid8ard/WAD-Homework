@@ -118,7 +118,7 @@ export default function Layout() {
           <ThemeToggle />
           <button 
             onClick={handleLogout}
-            className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg text-red-500 transition-all duration-200 active:scale-95"
+            className="p-3 bg-zinc-100/50 hover:bg-zinc-200 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 rounded-xl text-red-500 transition-all duration-200 active:scale-90 backdrop-blur-sm shadow-sm border border-zinc-200/50 dark:border-zinc-700/50"
             title="Выйти из аккаунта"
           >
             <LogOut size={20} />
