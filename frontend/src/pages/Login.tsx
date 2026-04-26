@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, KeyRound } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../shared/api';
 import { useAuthStore } from '../shared/store/authStore';

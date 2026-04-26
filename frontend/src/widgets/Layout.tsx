@@ -82,9 +82,19 @@ export default function Layout() {
         {/* Список чатов */}
         <div className="flex-1 overflow-y-auto px-2 space-y-1 scrollbar-hide">
           {isLoading ? (
-            <div className="text-center text-sm text-zinc-500 py-4">Загрузка...</div>
+            // СКЕЛЕТОНЫ ДЛЯ СПИСКА ЧАТОВ
+            <div className="space-y-2 p-2">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3 w-full p-3">
+                  <div className="w-5 h-5 rounded bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
+                  <div className="h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded w-3/4" />
+                </div>
+              ))}
+            </div>
           ) : chats.length === 0 ? (
-            <div className="text-center text-sm text-zinc-500 py-4">Нет истории чатов</div>
+            <div className="text-center text-sm text-zinc-500 py-8 opacity-50">
+              Нет истории чатов
+            </div>
           ) : (
             chats.map((chat) => (
               <button 
