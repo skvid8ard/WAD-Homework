@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, User, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../shared/api';
+import { ThemeToggle } from '../shared/components/ThemeToggle';
+import { VerificationForm } from '../shared/components/VerificationForm';
 
 export const Register = () => {
   const [username, setUsername] = useState('');
@@ -32,7 +34,7 @@ export const Register = () => {
 
     setError('');
     try {
-        await api.post('/auth/resend-code', { email });
+        await api.post('/auth/resend-code', { email_or_username: email });
         setResendTimer(60); // Запускаем таймер на 60 секунд
         // Можно добавить уведомление "Код отправлен повторно"
     } catch (err: any) {
@@ -86,7 +88,7 @@ export const Register = () => {
 
     try {
       await api.post('/auth/verify-email', {
-        email,
+        email_or_username: email,
         verification_code: otpCode
       });
       // После успешной верификации кидаем на страницу логина
@@ -104,7 +106,13 @@ export const Register = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-zinc-950 p-4">
+    <div className="flex min-h-screen items-center justify-center p-4 relative">
+
+      {/* Кнопка смены темы в правом верхнем углу */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <motion.div 
         initial={{ opacity: 0, scale: 0.85 }} 
         animate={{ opacity: 1, scale: 1 }} 
@@ -237,64 +245,23 @@ export const Register = () => {
             <button 
               type="submit" 
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 text-white font-medium py-2.5 rounded-lg transition-colors mt-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 text-white font-medium py-2.5 rounded-lg transition-all duration-200 active:scale-[0.98] flex justify-center items-center mt-2"
             >
               {isLoading ? 'Отправка...' : 'Зарегистрироваться'}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleVerify} className="space-y-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
-              Мы отправили 6-значный код на <span className="font-semibold">{email}</span>. 
-              (Смотри код в терминале бэкенда, так как email_service мокирован).
-            </p>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Код подтверждения
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <KeyRound className="h-5 w-5 text-gray-400" />
-                </div>
-                <input 
-                  type="text" 
-                  maxLength={6}
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))} // Только цифры
-                  className="w-full text-center tracking-widest text-lg pl-10 pr-4 py-2 border border-gray-300 dark:border-zinc-700 rounded-lg bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  placeholder="000000"
-                  required
-                />
-              </div>
-            </div>
-
-            <button 
-              type="submit" 
-              disabled={isLoading || otpCode.length < 6}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 dark:disabled:bg-green-800 text-white font-medium py-2.5 rounded-lg transition-colors mt-2"
-            >
-              {isLoading ? 'Проверка...' : 'Подтвердить'}
-            </button>
-
-            <div className="text-center mt-4">
-                <button
-                    type="button"
-                    onClick={handleResendCode}
-                    disabled={resendTimer > 0}
-                    className={`text-sm font-medium transition-colors ${
-                    resendTimer > 0 
-                        ? 'text-gray-400 cursor-not-allowed' 
-                        : 'text-blue-600 hover:text-blue-700 dark:text-blue-500'
-                    }`}
-                >
-                    {resendTimer > 0 
-                    ? `Отправить повторно через ${resendTimer}с` 
-                    : 'Отправить код повторно'}
-                </button>
-            </div>
-
-          </form>
+            <VerificationForm 
+                identifier={username} // Передаем email или логин
+                otpCode={otpCode}
+                setOtpCode={setOtpCode}
+                onSubmit={handleVerify}
+                onResend={handleResendCode} 
+                isLoading={isLoading}
+                resendTimer={resendTimer}
+                error={error}
+                submitText="Подтвердить и войти" // В Register можно не передавать, по умолчанию "Подтвердить"
+            />
         )}
 
         <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">

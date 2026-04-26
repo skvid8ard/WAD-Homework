@@ -113,7 +113,7 @@ async def verify_email(
     Принимает email и код верификации, проверяет их и, если все верно, помечает email пользователя как подтвержденный (verified).
     """
 
-    return await auth_service.verify_user_email(db, payload.email, payload.verification_code)
+    return await auth_service.verify_user_email(db, payload.email_or_username, payload.verification_code)
 
 @router.post("/resend-code", status_code=status.HTTP_200_OK)
 async def resend_verification_code(
@@ -124,7 +124,7 @@ async def resend_verification_code(
     Эндпоинт для повторной отправки кода верификации на email пользователя.
     Принимает email, проверяет его и, если пользователь существует и не подтвержден, генерирует новый код верификации и отправляет его на email.
     """
-    return await auth_service.resend_verification_code(db, payload.email)
+    return await auth_service.resend_verification_code(db, payload.email_or_username)
 
 @router.post("/logout")
 async def logout(

@@ -1,9 +1,25 @@
 @import "tailwindcss";
 
+/* 1. Указываем Tailwind v4 работать с темной темой через класс .dark */
 @custom-variant dark (&:is(.dark *));
 
+/* 2. Базовые стили для стандартных HTML-тегов */
 @layer base {
   body {
-    @apply bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 antialiased;
+    /* 
+      bg-zinc-50 / dark:bg-zinc-950 - мягкий глобальный фон
+      antialiased - делает шрифты более гладкими (особенно на macOS)
+      transition-colors - плавное переключение темы на всех страницах сразу
+    */
+    @apply bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 antialiased transition-colors duration-300;
   }
+}
+
+/* Прячем системный скроллбар, но оставляем прокрутку */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

@@ -33,30 +33,37 @@ async def register_user(db: AsyncSession, user_data: UserCreate) -> User:
 
     return new_user
 
-async def verify_user_email(db: AsyncSession, email: str, verification_code: str) -> dict:
-    logger.warning(f"DEBUG: Попытка верификации. Email: {email}, Код: {verification_code}")
-
-    is_valid = await session_service.verify_and_delete_otp(email, verification_code)
-    if not is_valid:
+async def verify_user_email(db: AsyncSession, email_or_username: str, verification_code: str) -> dict:
+    # 1. НАХОДИМ ЮЗЕРА (по email ИЛИ username)
+    user = await user_service.get_user_by_login(db, email_or_username)
+    
+    # Защита от перебора: если юзера нет, выдаем ту же ошибку, что и при неверном коде
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired verification code / Неверный или истекший код подтверждения Email"
         )
 
-    user = await user_service.get_user_by_email(db, email)
-    if not user:
-        logger.error(f"DEBUG: Пользователь с email {email} не найден в БД после успешной проверки кода.")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found / Пользователь не найден"
-        )
+    # 2. Проверяем, не подтвержден ли он уже
     if user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already verified / Email уже подтвержден"
         )
 
+    logger.warning(f"DEBUG: Попытка верификации. Email: {user.email}, Код: {verification_code}")
+
+    # 3. ПРОВЕРЯЕМ КОД в Redis (используя РЕАЛЬНЫЙ email из базы)
+    is_valid = await session_service.verify_and_delete_otp(user.email, verification_code)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification code / Неверный или истекший код подтверждения Email"
+        )
+
+    # 4. ОБНОВЛЯЕМ СТАТУС В БД
     await user_service.mark_user_as_verified(db, user)
+    
     return {"message": "Email successfully verified / Email успешно подтвержден"}
 
 async def login_user(db: AsyncSession, form_data: OAuth2PasswordRequestForm) -> dict:
@@ -186,23 +193,27 @@ async def logout_user(user_id: int):
     await session_service.revoke_all_user_sessions(str(user_id))
 
 
-async def resend_verification_code(db: AsyncSession, email:str) -> dict:
+async def resend_verification_code(db: AsyncSession, email_or_username: str) -> dict:
     """
     Бизнес-логика повторной отправки кода верификации на email пользователя
     """
-    user = await user_service.get_user_by_email(db, email)
+    user = await user_service.get_user_by_login(db, email_or_username)
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_200_OK, # Возвращаем 200, чтобы не раскрывать информацию о существовании email в системе
             detail="If the email exists, a verification code has been sent / Если email существует, код подтверждения был отправлен"
         )
+
     if user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already verified / Email уже подтвержден"
         )
+
     new_code = email_service.generate_verification_code()
-    await session_service.save_otp_code(email, new_code)
-    await email_service.send_verification_email(email, new_code)
+
+    await session_service.save_otp_code(user.email, new_code)
+    await email_service.send_verification_email(user.email, new_code)
 
     return {"message": "If the email exists, a verification code has been sent / Если email существует, код подтверждения был отправлен"}
