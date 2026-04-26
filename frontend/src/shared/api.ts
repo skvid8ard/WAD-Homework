@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from './store/authStore';
+import toast from 'react-hot-toast';
 
 // Создание инстанса Axios с базовыми настройками
 export const api = axios.create({
@@ -102,6 +103,12 @@ api.interceptors.response.use(
         useAuthStore.getState().logout();
         return Promise.reject(refreshError);
       }
+    }
+
+    if (!error.response) {
+      toast.error('Ошибка сети. Проверьте подключение к серверу.');
+    } else if (error.response.status >= 500) {
+      toast.error('Внутренняя ошибка сервера (500).');
     }
 
     // Если это была ошибка логина - просто возвращаем ее в компонент Login.tsx

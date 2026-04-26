@@ -151,65 +151,67 @@ export const Chat: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full relative">
-      {/* Зона сообщений */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-32">
-        {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-zinc-500">
-            <p>Напишите сообщение, чтобы начать новый чат</p>
-          </div>
-        ) : (
-          messages.map((msg, index) => (
-            <div key={index} className={`flex items-start gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-              {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center shrink-0">
-                  <Bot className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-              )}
-              
-              <div className={`px-4 py-3 rounded-2xl max-w-[80%] shadow-sm overflow-hidden ${
-                msg.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-tr-sm' 
-                  : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-tl-sm border border-zinc-100 dark:border-zinc-700'
-              }`}>
-                {msg.role === 'user' ? (
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                ) : (
-                  <MarkdownMessage content={msg.content || '...'} />
-                )}
-              </div>
-
-              {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center shrink-0">
-                  <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-              )}
+    <div className="absolute inset-0 flex flex-col">
+      
+      {/* 1. Лента сообщений - теперь она жестко ограничена по высоте */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-6">
+        <div className="max-w-4xl mx-auto w-full flex flex-col">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[60vh] text-zinc-500 opacity-50">
+               <Bot size={48} className="mb-4" />
+               <p className="text-lg">Начните новый диалог</p>
             </div>
-          ))
-        )}
-        {/* Невидимый якорь для авто-скролла */}
-        <div ref={messagesEndRef} />
+          ) : (
+            messages.map((msg, index) => (
+              <div key={index} className={`flex items-start gap-3 mb-6 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                {msg.role === 'assistant' && (
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                    <Bot className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                )}
+                
+                <div className={`px-4 py-2.5 rounded-2xl max-w-[85%] text-sm md:text-base ${
+                  msg.role === 'user' 
+                    ? 'bg-blue-600 text-white rounded-tr-none shadow-md' 
+                    : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 rounded-tl-none border border-zinc-200 dark:border-zinc-800 shadow-sm'
+                }`}>
+                  {msg.role === 'user' ? (
+                    <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                  ) : (
+                    <MarkdownMessage content={msg.content || '...'} />
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} className="h-4 w-full" />
+        </div>
       </div>
 
-      {/* Зона ввода (Фиксирована внизу) */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-zinc-50 via-zinc-50 to-transparent dark:from-zinc-950 dark:via-zinc-950 dark:to-transparent">
-        <div className="max-w-4xl mx-auto relative flex items-end gap-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-lg p-2">
-          <textarea
-            ref={textareaRef}
-            value={prompt}
-            onChange={handleInput}
-            onKeyDown={handleKeyDown}
-            placeholder="Спросите меня о чем-нибудь..."
-            className="w-full max-h-[200px] bg-transparent text-zinc-900 dark:text-zinc-100 px-3 py-2 focus:outline-none resize-none scrollbar-hide"
-            rows={1}
-          />
-          <button 
-            onClick={sendMessage}
-            disabled={!prompt.trim() || isStreaming}
-            className="p-3 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-800 text-white rounded-xl transition-all duration-200 active:scale-95 shrink-0 flex items-center justify-center h-[44px] w-[44px]"
-          >
-            {isStreaming ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-          </button>
+      {/* 2. Зона ввода - всегда прижата к низу */}
+      <div className="flex-shrink-0 p-4 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="relative flex items-end gap-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-2xl p-2 focus-within:ring-2 focus-within:ring-blue-500/30 transition-all shadow-sm">
+            <textarea
+              ref={textareaRef}
+              value={prompt}
+              onChange={handleInput}
+              onKeyDown={handleKeyDown}
+              placeholder="Спросите меня о чем-нибудь..."
+              className="w-full max-h-40 bg-transparent text-zinc-900 dark:text-zinc-100 px-3 py-2 focus:outline-none resize-none scrollbar-hide"
+              rows={1}
+            />
+            <button 
+              onClick={sendMessage}
+              disabled={!prompt.trim() || isStreaming}
+              className="p-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-800 text-white rounded-xl transition-all active:scale-95 shrink-0 shadow-md"
+            >
+              {isStreaming ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            </button>
+          </div>
+          <p className="text-[10px] text-zinc-400 text-center mt-2">
+            ИИ может ошибаться. Проверяйте информацию.
+          </p>
         </div>
       </div>
     </div>
