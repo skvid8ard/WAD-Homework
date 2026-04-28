@@ -34,6 +34,19 @@ WAD-Homework/
 └── README.md           # Главный файл документации  
 
 # Деплой с помощью docker-compose
+## Получение сертификатов
+- Запустить проект с nginx.conf.backup  
+- Запустить certbot, получить сертификаты:  
+```
+docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email твой_почтовый_ящик@gmail.com --agree-tos --no-eff-email -d core-llm.duckdns.org
+```
+## Запуск проекта
+```
+docker compose down
+```
+
+- Заменить nginx.conf обратно  
+
 ```
 docker compose up -d --build
 ```

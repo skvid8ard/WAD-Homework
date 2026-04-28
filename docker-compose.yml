@@ -53,11 +53,22 @@ services:
     container_name: wad-frontend
     restart: unless-stopped
     ports:
-      - "8090:80"
+      - "80:80"
+      - "443:443"
     depends_on:
       - backend
     networks:
       - wad
+    volumes:
+      - certbot_etc:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot_etc:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
 
 networks:
   wad:
@@ -66,3 +77,5 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  certbot_etc:
+  certbot_www:
