@@ -1,5 +1,5 @@
 # !Тестовый стенд с HTTPS и OAuth!
-core-llm.duckdns.org
+https://core-llm.duckdns.org
 
 # Архитектура  
 WAD-Homework/
