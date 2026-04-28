@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
 
 class Settings(BaseSettings):
     PROJECT_NAME: str
@@ -12,16 +13,25 @@ class Settings(BaseSettings):
     
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
-    GOOGLE_REDIRECT_URI: str = "http://localhost:5173/oauth/callback/google"
+    GOOGLE_REDIRECT_URI: str = ""
 
     GITHUB_CLIENT_ID: str = ""
     GITHUB_CLIENT_SECRET: str = ""
-    GITHUB_REDIRECT_URI: str = "http://localhost:5173/oauth/callback/github"
+    GITHUB_REDIRECT_URI: str = ""
 
-    LLM_MODEL_PATH: str = "../ai-models/qwen.gguf"
+    LLM_MODEL_PATH: str = "/ai-models/qwen.gguf"
 
-    ENVIRONMENT: str = "development" # Значение по умолчанию, может быть переопределено в .env файле
+    ENVIRONMENT: str = "production" 
 
-    model_config = SettingsConfigDict(env_file=["../../.env", "../.env", ".env"], extra="ignore")
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587  # Стандартный порт TLS
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM_EMAIL: str = ""
+
+    model_config = SettingsConfigDict(
+        env_file=[".env", "../.env", "../../.env"], 
+        extra="ignore"
+    )
 
 settings = Settings()

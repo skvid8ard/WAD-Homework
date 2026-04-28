@@ -87,7 +87,7 @@ export const Chat: React.FC = () => {
         fetchChats();
       }
 
-      const response = await fetchWithAuth(`http://localhost:8000/chats/${currentChatId}/messages`, {
+      const response = await fetchWithAuth(`/api/chats/${currentChatId}/messages`, {
         method: 'POST',
         body: JSON.stringify({ message: userMessage })
       });

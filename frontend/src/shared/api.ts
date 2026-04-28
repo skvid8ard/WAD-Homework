@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 
 // Создание инстанса Axios с базовыми настройками
 export const api = axios.create({
-  baseURL: 'http://localhost:8000', // Адрес FastAPI бэкенда
+  baseURL: '/api', // Адрес FastAPI бэкенда
   withCredentials: true, // Разрешение отправки HttpOnly кук (refresh_token)
 });
 

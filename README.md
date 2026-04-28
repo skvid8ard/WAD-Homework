@@ -1,8 +1,8 @@
 # Архитектура  
 WAD-Homework/
-├── .venv/              # Виртуальное окружение Python
-├── ai-models/          # Директория с весами локальных нейросетей (GGUF)
-├── backend/            # Бэкенд (FastAPI)
+├── .venv/              # Виртуальное окружение Python  
+├── ai-models/          # Директория с весами локальных нейросетей (GGUF)  
+├── backend/            # Бэкенд (FastAPI)  
 │   ├── app/  
 │   │  ├── core/           # Настройки, инициализация БД, Redis, безопасность  
 │   │  ├── models/         # SQLAlchemy модели (Model)  
@@ -10,30 +10,35 @@ WAD-Homework/
 │   │  ├── services/       # Бизнес-логика (Service)  
 │   │  ├── controllers/    # API Роутеры (Controller)  
 │   │  └── main.py         # Точка входа приложения  
-│   ├── migrations/     # Файлы миграций базы данных (Alembic)
-│   ├── tests/          # Автоматизированные тесты (pytest)
-│   ├── alembic.ini     # Конфигурация миграций
-│   ├── pytest.ini      # Конфигурация тестов
-│   └── requirements.txt# Зависимости бэкенда
-├── docs/               # Документация проекта
-│   ├── sprints/        # Логи и история спринтов
-│   ├── architecture.md # Справочник архитектуры слоев
-│   ├── SPEC.md         # Спецификация
-│   ├── tech-stack.md   # Технологический стек
-│   └── testing.md      # Инструкции по тестированию
-├── frontend/
-│   ├── src/            # Исходный код React-приложения (FSD архитектура)
-│   ├── index.html      # Главный HTML файл
-│   ├── vite.config.ts  # Конфигурация сборщика Vite
-│   └── package.json    # Зависимости фронтенда
-├── .env                # Единый файл глобальных переменных окружения
-├── .env.example        # Шаблон переменных окружения
-├── .gitignore          # Исключения для Git
-├── CHANGELOG.md        # История изменений проекта
-├── docker-compose.yml  # Инфраструктура (PostgreSQL, Redis)
-└── README.md           # Главный файл документации
+│   ├── migrations/     # Файлы миграций базы данных (Alembic)  
+│   ├── tests/          # Автоматизированные тесты (pytest)  
+│   ├── alembic.ini     # Конфигурация миграций  
+│   ├── pytest.ini      # Конфигурация тестов  
+│   └── requirements.txt# Зависимости бэкенда  
+├── docs/               # Документация проекта  
+│   ├── sprints/        # Логи и история спринтов  
+│   ├── architecture.md # Справочник архитектуры слоев  
+│   ├── SPEC.md         # Спецификация  
+│   ├── tech-stack.md   # Технологический стек  
+│   └── testing.md      # Инструкции по тестированию  
+├── frontend/  
+│   ├── src/            # Исходный код React-приложения (FSD архитектура)  
+│   ├── index.html      # Главный HTML файл  
+│   ├── vite.config.ts  # Конфигурация сборщика Vite  
+│   └── package.json    # Зависимости фронтенда  
+├── .env                # Единый файл глобальных переменных окружения  
+├── .env.example        # Шаблон переменных окружения  
+├── .gitignore          # Исключения для Git  
+├── CHANGELOG.md        # История изменений проекта  
+├── docker-compose.yml  # Инфраструктура (PostgreSQL, Redis)  
+└── README.md           # Главный файл документации  
 
-# Деплой
+# Деплой с помощью docker-compose
+```
+docker compose up -d --build
+```
+
+# Ручной деплой
 ## Venv  
 `python3 -m venv backend/.venv`  
 ### Linux  

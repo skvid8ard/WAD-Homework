@@ -32,7 +32,7 @@ export const Login = () => {
 
   const handleOAuthLogin = (provider: 'google' | 'github') => {
     // Просто перенаправляем всё окно браузера на эндпоинт бэкенда
-    window.location.href = `http://localhost:8000/auth/oauth/${provider}/authorize`;
+    window.location.href = `/api/auth/oauth/${provider}/authorize`;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
