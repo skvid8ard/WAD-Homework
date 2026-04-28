@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_SECRET: str = ""
     GITHUB_REDIRECT_URI: str = ""
 
-    LLM_MODEL_PATH: str = "/ai-models/qwen.gguf"
+    LLM_MODEL_PATH: str 
 
     ENVIRONMENT: str = "production" 
 

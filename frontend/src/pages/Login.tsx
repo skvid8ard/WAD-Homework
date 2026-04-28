@@ -31,7 +31,6 @@ export const Login = () => {
   }, [resendTimer]);
 
   const handleOAuthLogin = (provider: 'google' | 'github') => {
-    // Просто перенаправляем всё окно браузера на эндпоинт бэкенда
     window.location.href = `/api/auth/oauth/${provider}/authorize`;
   };
 
@@ -54,7 +53,6 @@ export const Login = () => {
       const detail = err.response?.data?.detail;
       
       if (detail) {
-        // МАГИЯ АВТОМАТИЧЕСКОГО ПЕРЕХОДА
         if (detail.toLowerCase().includes('verified') || detail.toLowerCase().includes('подтвержден')) {
           try {
             // Тихо отправляем код

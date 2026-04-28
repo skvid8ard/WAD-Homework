@@ -3,9 +3,9 @@ services:
     image: redis:7.4-alpine
     container_name: wad-redis
     restart: unless-stopped
+    env_file:
+      - .env
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
     volumes: 
       - redis_data:/data
     networks:
@@ -14,12 +14,12 @@ services:
   postgres:
     image: postgres:15-alpine
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
+    env_file:
+      - .env
+    # environment:
+      # POSTGRES_USER: ${POSTGRES_USER}
+      # POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -43,7 +43,7 @@ services:
       - postgres
       - redis
     volumes:
-      - ./ai-models:/ai-models
+      - ${HOST_MODELS_DIR}:/ai-models
     networks:
       - wad
 
