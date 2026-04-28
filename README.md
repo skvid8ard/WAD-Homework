@@ -1,3 +1,6 @@
+# !Тестовый стенд с HTTPS и OAuth!
+core-llm.duckdns.org
+
 # Архитектура  
 WAD-Homework/
 ├── .venv/              # Виртуальное окружение Python  
